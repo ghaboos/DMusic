@@ -2,39 +2,92 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#070708">
-  <title>DMusic</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="DMusic — a personal music library and player.">
+  <title>DMusic — Your Music Library</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
   <main class="app">
     <header class="topbar">
-      <div class="brand">D<span>MUSIC</span></div>
-      <div class="eyebrow">YOUR MUSIC LIBRARY</div>
+      <a class="brand" href="#top" aria-label="DMusic home">D<span>MUSIC</span></a>
+      <div class="topbar-meta">
+        <span class="status-dot"></span>
+        <span>YOUR MUSIC LIBRARY</span>
+      </div>
     </header>
 
-    <section class="hero">
-      <div class="eyebrow">WELCOME BACK</div>
-      <h1>YOUR SOUND.<br>YOUR WORLD.</h1>
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <div class="eyebrow">PERSONAL AUDIO PLAYER</div>
+        <h1>YOUR SOUND.<br><em>YOUR WORLD.</em></h1>
+        <p>Every track, every mood, all in one place.</p>
+      </div>
+      <div class="hero-badge" aria-hidden="true">
+        <span>DM</span>
+        <small>PLAY</small>
+      </div>
     </section>
 
-    <section>
-      <div class="section-title"><h2>Folders</h2></div>
+    <section class="content-section">
+      <div class="section-title">
+        <div>
+          <span class="section-kicker">LIBRARY</span>
+          <h2>Folders</h2>
+        </div>
+        <span id="folderCount" class="count">0</span>
+      </div>
       <div id="library" class="library"></div>
     </section>
 
-    <section>
-      <div class="section-title"><h2>Tracks</h2></div>
+    <section class="content-section tracks-section">
+      <div class="section-title">
+        <div>
+          <span class="section-kicker">COLLECTION</span>
+          <h2 id="tracksHeading">Tracks</h2>
+        </div>
+        <label class="search-box" aria-label="Search tracks">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="Search tracks..." autocomplete="off">
+        </label>
+      </div>
       <div id="tracks" class="tracks"></div>
+      <div id="emptyState" class="empty-state" hidden>No tracks found.</div>
     </section>
   </main>
 
   <aside class="player" aria-label="Music player">
-    <img id="nowCover" src="assets/covers/track-default.jpg" alt="">
-    <div class="now"><b id="nowTitle">Nothing playing</b><small id="nowArtist">Choose a track</small></div>
-    <button id="playBtn" class="play-btn" aria-label="Play">▶</button>
-    <input id="volume" class="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+    <div class="player-main">
+      <div class="now-art-wrap">
+        <img id="nowCover" src="assets/covers/track-default.jpg" alt="">
+        <span id="playingIndicator" class="playing-indicator" hidden></span>
+      </div>
+      <div class="now">
+        <b id="nowTitle">Nothing playing</b>
+        <small id="nowArtist">Choose a track</small>
+      </div>
+
+      <div class="player-controls">
+        <button id="prevBtn" class="control-btn" aria-label="Previous track">⏮</button>
+        <button id="playBtn" class="play-btn" aria-label="Play">▶</button>
+        <button id="nextBtn" class="control-btn" aria-label="Next track">⏭</button>
+      </div>
+
+      <div class="time-progress">
+        <span id="currentTime">0:00</span>
+        <input id="progress" type="range" min="0" max="100" value="0" step="0.1" aria-label="Track progress">
+        <span id="duration">0:00</span>
+      </div>
+
+      <div class="volume-wrap">
+        <span>♪</span>
+        <input id="volume" class="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
+      </div>
+    </div>
   </aside>
 
   <script src="music-data.js"></script>

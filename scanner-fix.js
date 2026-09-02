@@ -1,8 +1,8 @@
 (() => {
   const AUDIO = new Set(['mp3','m4a','flac','wav','ogg','oga','aac','opus','webm']);
   const IMAGE = new Set(['jpg','jpeg','png','webp']);
-  let busy = false;
   const FALLBACK = 'assets/covers/fallback.svg';
+  let busy = false;
   const status = (text, error = false) => { const el = document.querySelector('#scanStatus'); if (el) { el.textContent = text; el.classList.toggle('error', error); } };
   const ext = name => String(name || '').split('.').pop().toLowerCase();
   const isAudio = f => !!f && (AUDIO.has(ext(f.name)) || String(f.type || '').toLowerCase().startsWith('audio/'));
@@ -27,22 +27,20 @@
       return f;
     };
     for (const f of source) {
-      // Old versions could create scan-singles. Merge that data into the real Singles folder.
       const isSingles = f.id === 'singles' || f.id === 'scan-singles' || String(f.name || '').trim().toLowerCase() === 'singles';
-      const target = isSingles ? ensure('singles', 'Singles', 'Individual tracks', 'singles') : f;
-      if (isSingles && target !== f) {
-        const known = new Set(target.tracks.map(t => t.id));
+      if (isSingles) {
+        const target = ensure('singles', 'Singles', 'Individual tracks', 'singles');
+        const known = new Set((target.tracks || []).map(t => t.id));
         for (const t of (f.tracks || [])) if (!known.has(t.id)) { target.tracks.push(t); known.add(t.id); }
         if ((!target.cover || target.cover === FALLBACK) && f.cover) target.cover = f.cover;
         continue;
       }
-      if (!byId.has(f.id)) { byId.set(f.id, f); result.push(f); }
-      else {
-        const targetExisting = byId.get(f.id), known = new Set(targetExisting.tracks || [] .map(t => t.id));
-        for (const t of (f.tracks || [])) if (!known.has(t.id)) targetExisting.tracks.push(t);
-      }
+      const target = ensure(f.id, f.name, f.description, f.folderType || 'folder');
+      const known = new Set((target.tracks || []).map(t => t.id));
+      for (const t of (f.tracks || [])) if (!known.has(t.id)) { target.tracks.push(t); known.add(t.id); }
+      if ((!target.cover || target.cover === FALLBACK) && f.cover) target.cover = f.cover;
     }
-    if (!byId.has('singles')) ensure('singles', 'Singles', 'Individual tracks', 'singles');
+    ensure('singles', 'Singles', 'Individual tracks', 'singles');
     data.folders = result;
   }
 
@@ -63,9 +61,10 @@
       }
       const incoming = new Map(), saved = [];
       for (const file of audios) {
-        const parts = pathOf(file), name = parts.at(-1) || file.name, dirs = parts.slice(0,-1);
+        const parts = pathOf(file), name = parts.at(-1) || file.name;
         const root = mode === 'files' ? 'Singles' : (parts[0] || 'Music');
         const folderId = mode === 'files' ? 'singles' : `scan-${slug(root)}`;
+        const dirs = parts.slice(0,-1);
         const relativePath = mode === 'files' ? `Singles/${name}` : parts.join('/');
         const album = mode === 'files' ? 'Singles' : (dirs.at(-1) || root);
         const dir = mode === 'files' ? '' : dirs.join('/');
@@ -89,7 +88,7 @@
       let added = 0;
       for (const inc of incoming.values()) {
         let target = byId.get(inc.id);
-        if (!target) { target = { ...inc, tracks: [] }; merged.push(target); byId.set(target.id,target); }
+        if (!target) { target = { ...inc, tracks: [] }; merged.push(target); byId.set(target.id, target); }
         const known = new Set((target.tracks || []).map(t => t.id));
         for (const t of inc.tracks) {
           if (!known.has(t.id)) { target.tracks.push(t); known.add(t.id); added++; }

@@ -1,6 +1,8 @@
 const audio = new Audio();
-const STORAGE_KEY = "dmusic-state-v2";
+const STORAGE_KEY = "dmusic-state-v3";
 const FALLBACK_COVER = "assets/covers/fallback.svg";
+const AUDIO_EXTENSIONS = new Set(["mp3", "m4a", "flac", "wav", "ogg", "oga", "aac", "opus", "webm"]);
+const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
 
 let currentTrack = null;
 let currentIndex = -1;
@@ -9,8 +11,9 @@ let activeFolderId = "featured";
 let queue = [];
 let favorites = new Set();
 let shuffle = false;
-let repeat = "off"; // off | all | one
+let repeat = "off";
 let state = loadState();
+let scannedObjectUrls = [];
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -30,32 +33,22 @@ function loadState() {
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     favorites: [...favorites], shuffle, repeat, volume: audio.volume,
-    currentTrackId: currentTrack?.id || null,
-    activeFolderId,
-    queue: queue.map((track) => track.id)
+    currentTrackId: currentTrack?.id || null, activeFolderId,
+    queue: queue.map((track) => track.id), scanned: Boolean(window.DMusicData?.scanned)
   }));
 }
 
 function getAllTracks() {
   return (window.DMusicData?.folders || []).flatMap((folder) =>
-    (folder.tracks || []).map((track) => ({
-      ...track,
-      folderId: folder.id,
-      folderName: folder.name,
-      folderCover: folder.cover
-    }))
+    (folder.tracks || []).map((track) => ({ ...track, folderId: folder.id, folderName: folder.name, folderCover: folder.cover }))
   );
 }
 
-function resolveCover(track) {
-  return track?.cover || track?.folderCover || FALLBACK_COVER;
-}
+function resolveCover(track) { return track?.cover || track?.folderCover || FALLBACK_COVER; }
 
 function applyCoverFallback(img) {
-  img.addEventListener("error", () => {
-    if (img.src.endsWith(FALLBACK_COVER)) return;
-    img.src = FALLBACK_COVER;
-  }, { once: true });
+  if (!img) return;
+  img.addEventListener("error", () => { if (!img.src.endsWith(FALLBACK_COVER)) img.src = FALLBACK_COVER; }, { once: true });
 }
 
 function formatTime(seconds) {
@@ -65,6 +58,7 @@ function formatTime(seconds) {
 
 function setPlayerState(isPlaying) {
   const button = $("#playBtn");
+  if (!button) return;
   button.textContent = isPlaying ? "❚❚" : "▶";
   button.setAttribute("aria-label", isPlaying ? "Pause" : "Play");
   $("#playingIndicator").hidden = !isPlaying;
@@ -78,14 +72,12 @@ function renderLibrary() {
   if (!grid) return;
   $("#folderCount").textContent = folders.length;
   grid.innerHTML = "";
-
   folders.forEach((folder) => {
     const card = document.createElement("button");
     card.className = `folder-card${folder.id === activeFolderId ? " selected" : ""}`;
     card.type = "button";
     card.innerHTML = `<img src="${folder.cover || FALLBACK_COVER}" alt=""><span>${escapeHtml(folder.name)}</span><small>${folder.tracks?.length || 0} tracks</small>`;
-    const img = card.querySelector("img");
-    applyCoverFallback(img);
+    applyCoverFallback(card.querySelector("img"));
     card.addEventListener("click", () => renderTracks(folder.id));
     grid.appendChild(card);
   });
@@ -96,35 +88,23 @@ function renderTracks(folderId = activeFolderId) {
   const list = $("#tracks");
   const folder = folders.find((item) => item.id === folderId);
   if (!list) return;
-
   activeFolderId = folder ? folder.id : "all";
   const query = $("#searchInput")?.value.trim().toLowerCase() || "";
   const source = folder ? (folder.tracks || []).map((track) => ({ ...track, folderId: folder.id, folderName: folder.name, folderCover: folder.cover })) : getAllTracks();
   visibleTracks = source.filter((track) => `${track.title} ${track.artist || ""} ${track.album || ""}`.toLowerCase().includes(query));
-
   $("#tracksHeading").textContent = folder?.name || "All Tracks";
   $("#emptyState").hidden = visibleTracks.length > 0;
   list.innerHTML = "";
-
   visibleTracks.forEach((track, index) => {
     const row = document.createElement("div");
     row.className = "track-row-wrap";
     const active = currentTrack?.id === track.id;
-    row.innerHTML = `
-      <button class="track-row${active ? " active" : ""}" type="button" data-track-id="${escapeHtml(track.id)}">
-        <span class="track-number">${String(index + 1).padStart(2, "0")}</span>
-        <img src="${resolveCover(track)}" alt="">
-        <span class="track-info"><b>${escapeHtml(track.title)}</b><small>${escapeHtml(track.artist || "Unknown artist")}${track.album ? ` · ${escapeHtml(track.album)}` : ""}</small></span>
-        <span class="play-icon">${active && !audio.paused ? "❚❚" : "▶"}</span>
-      </button>
-      <button class="favorite-btn${favorites.has(track.id) ? " active" : ""}" type="button" aria-label="${favorites.has(track.id) ? "Remove from favorites" : "Add to favorites"}" title="Favorite">${ICONS.heart}</button>`;
-    const img = row.querySelector("img");
-    applyCoverFallback(img);
+    row.innerHTML = `<button class="track-row${active ? " active" : ""}" type="button" data-track-id="${escapeHtml(track.id)}"><span class="track-number">${String(index + 1).padStart(2, "0")}</span><img src="${resolveCover(track)}" alt=""><span class="track-info"><b>${escapeHtml(track.title)}</b><small>${escapeHtml(track.artist || "Unknown artist")}${track.album ? ` · ${escapeHtml(track.album)}` : ""}</small></span><span class="play-icon">${active && !audio.paused ? "❚❚" : "▶"}</span></button><button class="favorite-btn${favorites.has(track.id) ? " active" : ""}" type="button" aria-label="${favorites.has(track.id) ? "Remove from favorites" : "Add to favorites"}" title="Favorite">${ICONS.heart}</button>`;
+    applyCoverFallback(row.querySelector("img"));
     row.querySelector(".track-row").addEventListener("click", () => playTrack(track));
     row.querySelector(".favorite-btn").addEventListener("click", (event) => { event.stopPropagation(); toggleFavorite(track.id); });
     list.appendChild(row);
   });
-
   renderLibrary();
 }
 
@@ -142,12 +122,10 @@ function playTrack(track, addToQueue = true) {
   currentTrack = track;
   currentIndex = visibleTracks.findIndex((item) => item.id === track.id);
   if (currentIndex < 0) currentIndex = 0;
-
   if (addToQueue && !queue.some((item) => item.id === track.id)) queue.push(track);
   audio.src = track.src;
   audio.load();
   audio.play().catch(() => setPlayerState(false));
-
   $("#nowTitle").textContent = track.title || "Unknown title";
   $("#nowArtist").textContent = track.artist || "Unknown artist";
   $("#nowCover").src = resolveCover(track);
@@ -207,16 +185,128 @@ function renderQueue() {
 }
 
 function toggleQueue() {
-  const panel = $("#queuePanel");
-  const backdrop = $("#queueBackdrop");
+  const panel = $("#queuePanel"), backdrop = $("#queueBackdrop");
   const open = !panel.classList.contains("open");
   panel.classList.toggle("open", open);
   panel.setAttribute("aria-hidden", String(!open));
   backdrop.hidden = !open;
 }
 
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;" }[char]));
+function escapeHtml(value) { return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;" }[char])); }
+
+function normalizeText(value) {
+  return String(value || "").replace(/\.[^.]+$/, "").replace(/^\s*\[?\d{1,3}\]?\s*[-._)]\s*/, "").replace(/^\s*\d{1,3}\s+/, "").replace(/\s+/g, " ").trim();
+}
+
+function parseFilename(fileName, parentFolder) {
+  const base = normalizeText(fileName);
+  const parts = base.split(/\s+-\s+|\s+–\s+|\s+—\s+/).map((part) => part.trim()).filter(Boolean);
+  let artist = "Unknown artist";
+  let album = parentFolder || "Unknown album";
+  let title = base;
+
+  if (parts.length >= 3) {
+    artist = parts[0];
+    album = parts[1] || album;
+    title = parts.slice(2).join(" - ");
+  } else if (parts.length === 2) {
+    const firstLooksNumbered = /^\d{1,3}$/.test(parts[0]);
+    if (firstLooksNumbered) title = parts[1];
+    else { artist = parts[0]; title = parts[1]; }
+  }
+
+  const artistTitle = title.match(/^(.+?)\s*\(([^)]+)\)$/);
+  if (artist === "Unknown artist" && artistTitle) { artist = artistTitle[2]; title = artistTitle[1].trim(); }
+  title = normalizeText(title).replace(/\s*\[[^\]]+\]\s*$/g, "").trim();
+  return { artist, album, title: title || base };
+}
+
+function getRelativeParts(file) {
+  const path = file.webkitRelativePath || file.name;
+  const parts = path.split(/[\\/]/).filter(Boolean);
+  return { root: parts[0] || "Music", dirs: parts.slice(1, -1), fileName: parts.at(-1) || file.name };
+}
+
+function isAudioFile(file) {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "";
+  return AUDIO_EXTENSIONS.has(ext) || (file.type || "").startsWith("audio/");
+}
+
+function isImageFile(file) {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "";
+  return IMAGE_EXTENSIONS.has(ext) || (file.type || "").startsWith("image/");
+}
+
+function imagePriority(name) {
+  const clean = name.replace(/\.[^.]+$/, "").toLowerCase();
+  const priorities = ["cover", "folder", "album", "artwork", "front", "front cover"];
+  const index = priorities.indexOf(clean);
+  return index < 0 ? 99 : index;
+}
+
+function buildScannedLibrary(files) {
+  const audioFiles = files.filter(isAudioFile);
+  const imageFiles = files.filter(isImageFile);
+  const imageByDir = new Map();
+  const folders = new Map();
+
+  imageFiles.forEach((file) => {
+    const { dirs } = getRelativeParts(file);
+    const key = dirs.join("/");
+    const existing = imageByDir.get(key);
+    if (!existing || imagePriority(file.name) < imagePriority(existing.name)) imageByDir.set(key, file);
+  });
+
+  audioFiles.forEach((file, index) => {
+    const { root, dirs, fileName } = getRelativeParts(file);
+    const folderName = dirs[0] || root || "Music";
+    const folderId = `scan-${slugify(folderName)}`;
+    const parentFolder = dirs.at(-1) || folderName;
+    const parsed = parseFilename(fileName, parentFolder);
+    const dirKey = dirs.join("/");
+    const coverFile = imageByDir.get(dirKey) || imageByDir.get(dirs.slice(0, -1).join("/"));
+    const src = URL.createObjectURL(file);
+    scannedObjectUrls.push(src);
+    const cover = coverFile ? URL.createObjectURL(coverFile) : FALLBACK_COVER;
+    if (coverFile) scannedObjectUrls.push(cover);
+
+    if (!folders.has(folderId)) folders.set(folderId, { id: folderId, name: folderName, description: "Scanned from your music folder", cover: FALLBACK_COVER, tracks: [] });
+    const folder = folders.get(folderId);
+    if (folder.cover === FALLBACK_COVER && coverFile) folder.cover = cover;
+    folder.tracks.push({ id: `local-${index}-${hashString(file.webkitRelativePath || file.name)}`, ...parsed, year: null, cover, src, local: true, path: file.webkitRelativePath || file.name });
+  });
+
+  const result = [...folders.values()];
+  result.forEach((folder) => folder.tracks.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: "base" })));
+  return result.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+}
+
+function slugify(value) { return String(value).toLowerCase().normalize("NFKD").replace(/[^a-z0-9\u0600-\u06ff]+/g, "-").replace(/^-|-$/g, "") || "folder"; }
+function hashString(value) { let hash = 0; for (let i = 0; i < value.length; i++) hash = ((hash << 5) - hash) + value.charCodeAt(i) | 0; return Math.abs(hash).toString(36); }
+
+function scanSelectedFiles(fileList) {
+  const files = [...fileList];
+  const audioCount = files.filter(isAudioFile).length;
+  if (!audioCount) { setScanStatus("No supported audio files were found.", true); return; }
+  scannedObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+  scannedObjectUrls = [];
+  const folders = buildScannedLibrary(files);
+  window.DMusicData = { folders, scanned: true, scannedAt: new Date().toISOString(), sourceName: files[0]?.webkitRelativePath?.split(/[\\/]/)[0] || "Local folder" };
+  activeFolderId = folders[0]?.id || "all";
+  currentTrack = null;
+  currentIndex = -1;
+  queue = [];
+  saveState();
+  setScanStatus(`${audioCount.toLocaleString()} tracks found in ${folders.length.toLocaleString()} folders.`);
+  renderTracks(activeFolderId);
+  renderQueue();
+}
+
+function setScanStatus(text, error = false) {
+  const el = $("#scanStatus");
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle("error", error);
 }
 
 $("#shuffleBtn").innerHTML = ICONS.shuffle;
@@ -235,6 +325,8 @@ $("#closeQueueBtn")?.addEventListener("click", toggleQueue);
 $("#queueBackdrop")?.addEventListener("click", toggleQueue);
 $("#allTracksBtn")?.addEventListener("click", () => { $("#searchInput").value = ""; renderTracks("all"); });
 $("#searchInput")?.addEventListener("input", () => renderTracks(activeFolderId));
+$("#scanBtn")?.addEventListener("click", () => $("#musicFolderInput")?.click());
+$("#musicFolderInput")?.addEventListener("change", (event) => { if (event.target.files?.length) scanSelectedFiles(event.target.files); event.target.value = ""; });
 
 $("#volume")?.addEventListener("input", (event) => { audio.volume = Number(event.target.value); saveState(); });
 $("#progress")?.addEventListener("input", (event) => { if (audio.duration) audio.currentTime = (Number(event.target.value) / 100) * audio.duration; });
@@ -260,8 +352,8 @@ audio.volume = typeof state.volume === "number" ? state.volume : 1;
 $("#volume").value = audio.volume;
 updateModes();
 renderLibrary();
-const initialFolder = (window.DMusicData?.folders || []).some((folder) => folder.id === state.activeFolderId) ? state.activeFolderId : "featured";
-renderTracks(initialFolder);
+renderTracks((window.DMusicData?.folders || []).some((folder) => folder.id === state.activeFolderId) ? state.activeFolderId : "featured");
+renderQueue();
 
 if (state.currentTrackId) {
   const restored = getAllTracks().find((track) => track.id === state.currentTrackId);

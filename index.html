@@ -15,10 +15,7 @@
   <main class="app">
     <header class="topbar">
       <a class="brand" href="#top" aria-label="DMusic home">D<span>MUSIC</span></a>
-      <div class="topbar-meta">
-        <span class="status-dot"></span>
-        <span>YOUR MUSIC LIBRARY</span>
-      </div>
+      <div class="topbar-meta"><span class="status-dot"></span><span>YOUR MUSIC LIBRARY</span></div>
     </header>
 
     <section class="hero" id="top">
@@ -27,33 +24,21 @@
         <h1>YOUR SOUND.<br><em>YOUR WORLD.</em></h1>
         <p>Every track, every mood, all in one place.</p>
       </div>
-      <div class="hero-badge" aria-hidden="true">
-        <span>DM</span>
-        <small>PLAY</small>
-      </div>
+      <div class="hero-badge" aria-hidden="true"><span>DM</span><small>PLAY</small></div>
     </section>
 
     <section class="content-section">
       <div class="section-title">
-        <div>
-          <span class="section-kicker">LIBRARY</span>
-          <h2>Folders</h2>
-        </div>
-        <span id="folderCount" class="count">0</span>
+        <div><span class="section-kicker">LIBRARY</span><h2>Folders</h2></div>
+        <div class="library-actions"><button id="allTracksBtn" class="text-btn" type="button">All tracks</button><span id="folderCount" class="count">0</span></div>
       </div>
       <div id="library" class="library"></div>
     </section>
 
     <section class="content-section tracks-section">
       <div class="section-title">
-        <div>
-          <span class="section-kicker">COLLECTION</span>
-          <h2 id="tracksHeading">Tracks</h2>
-        </div>
-        <label class="search-box" aria-label="Search tracks">
-          <span>⌕</span>
-          <input id="searchInput" type="search" placeholder="Search tracks..." autocomplete="off">
-        </label>
+        <div><span class="section-kicker">COLLECTION</span><h2 id="tracksHeading">Tracks</h2></div>
+        <label class="search-box" aria-label="Search tracks"><span>⌕</span><input id="searchInput" type="search" placeholder="Search tracks..." autocomplete="off"></label>
       </div>
       <div id="tracks" class="tracks"></div>
       <div id="emptyState" class="empty-state" hidden>No tracks found.</div>
@@ -62,33 +47,26 @@
 
   <aside class="player" aria-label="Music player">
     <div class="player-main">
-      <div class="now-art-wrap">
-        <img id="nowCover" src="assets/covers/track-default.jpg" alt="">
-        <span id="playingIndicator" class="playing-indicator" hidden></span>
-      </div>
-      <div class="now">
-        <b id="nowTitle">Nothing playing</b>
-        <small id="nowArtist">Choose a track</small>
-      </div>
-
+      <div class="now-art-wrap"><img id="nowCover" src="assets/covers/fallback.svg" alt=""><span id="playingIndicator" class="playing-indicator" hidden></span></div>
+      <div class="now"><b id="nowTitle">Nothing playing</b><small id="nowArtist">Choose a track</small></div>
       <div class="player-controls">
-        <button id="prevBtn" class="control-btn" aria-label="Previous track">⏮</button>
-        <button id="playBtn" class="play-btn" aria-label="Play">▶</button>
-        <button id="nextBtn" class="control-btn" aria-label="Next track">⏭</button>
+        <button id="shuffleBtn" class="control-btn mode-btn" type="button" aria-label="Shuffle" title="Shuffle"></button>
+        <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track" title="Previous"></button>
+        <button id="playBtn" class="play-btn" type="button" aria-label="Play">▶</button>
+        <button id="nextBtn" class="control-btn" type="button" aria-label="Next track" title="Next"></button>
+        <button id="repeatBtn" class="control-btn mode-btn" type="button" aria-label="Repeat" title="Repeat"></button>
+        <button id="queueBtn" class="control-btn mode-btn" type="button" aria-label="Queue" title="Queue"></button>
       </div>
-
-      <div class="time-progress">
-        <span id="currentTime">0:00</span>
-        <input id="progress" type="range" min="0" max="100" value="0" step="0.1" aria-label="Track progress">
-        <span id="duration">0:00</span>
-      </div>
-
-      <div class="volume-wrap">
-        <span>♪</span>
-        <input id="volume" class="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
-      </div>
+      <div class="time-progress"><span id="currentTime">0:00</span><input id="progress" type="range" min="0" max="100" value="0" step="0.1" aria-label="Track progress"><span id="duration">0:00</span></div>
+      <div class="volume-wrap"><span>♪</span><input id="volume" class="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume"></div>
     </div>
   </aside>
+
+  <aside id="queuePanel" class="queue-panel" aria-label="Playback queue" aria-hidden="true">
+    <div class="queue-head"><div><span class="section-kicker">UP NEXT</span><h2>Queue</h2></div><button id="closeQueueBtn" class="close-btn" type="button" aria-label="Close queue">×</button></div>
+    <div id="queueList" class="queue-list"></div>
+  </aside>
+  <div id="queueBackdrop" class="queue-backdrop" hidden></div>
 
   <script src="music-data.js"></script>
   <script src="script.js"></script>

@@ -4,7 +4,7 @@ const musicData = {
       id: "featured",
       name: "Featured",
       description: "Your featured tracks",
-      cover: "assets/covers/folder-default.jpg",
+      cover: "assets/covers/folder-featured.svg",
       tracks: [
         {
           id: "demo-01",
@@ -12,7 +12,7 @@ const musicData = {
           artist: "Lil Danny",
           album: "DMusic",
           year: 2026,
-          cover: "assets/covers/track-default.jpg",
+          cover: "assets/covers/track-demo.svg",
           src: "assets/music/demo.mp3"
         }
       ]
@@ -21,18 +21,17 @@ const musicData = {
       id: "albums",
       name: "Albums",
       description: "Full albums and projects",
-      cover: "assets/covers/folder-default.jpg",
+      cover: "assets/covers/folder-albums.svg",
       tracks: []
     },
     {
       id: "singles",
       name: "Singles",
       description: "Standalone tracks",
-      cover: "assets/covers/folder-default.jpg",
+      cover: "assets/covers/folder-singles.svg",
       tracks: []
     }
   ]
 };
 
-// Global data used by script.js
 window.DMusicData = musicData;

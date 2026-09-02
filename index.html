@@ -15,7 +15,7 @@
   <main class="app">
     <header class="topbar">
       <a class="brand" href="#top" aria-label="DMusic home">D<span>MUSIC</span></a>
-      <div class="topbar-meta"><span class="status-dot"></span><span>YOUR MUSIC LIBRARY</span></div>
+      <div class="topbar-meta"><span class="status-dot"></span><span id="libraryStatus">YOUR MUSIC LIBRARY</span></div>
     </header>
 
     <section class="hero" id="top">
@@ -23,6 +23,11 @@
         <div class="eyebrow">PERSONAL AUDIO PLAYER</div>
         <h1>YOUR SOUND.<br><em>YOUR WORLD.</em></h1>
         <p>Every track, every mood, all in one place.</p>
+        <div class="scanner-bar">
+          <button id="scanBtn" class="scan-btn" type="button">SCAN MUSIC FOLDER</button>
+          <input id="musicFolderInput" type="file" webkitdirectory directory multiple hidden accept="audio/*,.mp3,.m4a,.flac,.wav,.ogg,.aac,.opus,.webm,.jpg,.jpeg,.png,.webp">
+          <span id="scanStatus" class="scan-status">Choose your music folder to build the library.</span>
+        </div>
       </div>
       <div class="hero-badge" aria-hidden="true"><span>DM</span><small>PLAY</small></div>
     </section>

@@ -19,12 +19,7 @@
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <main class="app" id="top">
-    <header class="topbar">
-      <a class="brand" href="#top">D<span>MUSIC</span></a>
-      <nav class="main-nav" aria-label="Library navigation">
-        <button class="nav-btn active" data-view="library">Library</button><button class="nav-btn" data-view="favorites">Favorites</button><button class="nav-btn" data-view="recent">Recently Played</button><button class="nav-btn" data-view="most">Most Played</button><button class="nav-btn" data-view="continue">Continue</button><button class="nav-btn" data-view="playlists">Playlists</button>
-      </nav><div class="topbar-meta"><span class="status-dot"></span><span id="libraryStatus">YOUR MUSIC LIBRARY</span></div>
-    </header>
+    <header class="topbar"><a class="brand" href="#top">D<span>MUSIC</span></a><nav class="main-nav" aria-label="Library navigation"><button class="nav-btn active" data-view="library">Library</button><button class="nav-btn" data-view="favorites">Favorites</button><button class="nav-btn" data-view="recent">Recently Played</button><button class="nav-btn" data-view="most">Most Played</button><button class="nav-btn" data-view="continue">Continue</button><button class="nav-btn" data-view="playlists">Playlists</button></nav><div class="topbar-meta"><span class="status-dot"></span><span id="libraryStatus">YOUR MUSIC LIBRARY</span></div></header>
     <section class="hero"><div class="hero-copy"><div class="eyebrow">PERSONAL AUDIO PLAYER</div><h1>YOUR SOUND.<br><em>YOUR WORLD.</em></h1><p>Every track, every mood, all in one place.</p><div class="scanner-bar"><button id="scanBtn" class="scan-btn" type="button">＋ ADD MUSIC FOLDER</button><button id="addFilesBtn" class="scan-btn secondary-scan-btn" type="button">＋ ADD MUSIC FILES</button><input id="musicFolderInput" type="file" webkitdirectory directory multiple hidden accept="audio/*,.mp3,.m4a,.flac,.wav,.ogg,.aac,.opus,.webm,.jpg,.jpeg,.png,.webp"><input id="musicFilesInput" type="file" multiple hidden accept="audio/*,.mp3,.m4a,.flac,.wav,.ogg,.aac,.opus,.webm"><span id="scanStatus" class="scan-status">Add a folder or individual music files to build your library.</span></div></div><div class="hero-badge" aria-hidden="true"><span>DM</span><small>PLAY</small></div></section>
     <section class="content-section library-section"><div class="section-title"><div><span class="section-kicker">LIBRARY</span><h2 id="pageTitle">Folders</h2></div><div class="library-actions"><button id="allTracksBtn" class="text-btn">All tracks</button><span id="folderCount" class="count">0</span></div></div><div id="library" class="library"></div></section>
     <section class="content-section tracks-section"><div class="section-title"><div><span class="section-kicker">COLLECTION</span><h2 id="tracksHeading">Tracks</h2></div><div class="track-tools"><select id="sortSelect"><option value="name">Name</option><option value="artist">Artist</option><option value="album">Album</option><option value="year">Year</option><option value="recent">Recently played</option><option value="plays">Most played</option></select><select id="filterSelect"><option value="all">All</option><option value="favorites">Favorites</option><option value="played">Played</option><option value="unplayed">Unplayed</option><option value="year">With year</option></select><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search tracks..." autocomplete="off"></label></div></div><div id="statsBar" class="stats-bar"></div><div id="tracks" class="tracks"></div><div id="emptyState" class="empty-state" hidden>No tracks found.</div></section>
@@ -34,10 +29,9 @@
   <aside id="queuePanel" class="queue-panel" aria-hidden="true"><div class="queue-head"><div><span class="section-kicker">UP NEXT</span><h2>Queue</h2></div><button id="closeQueueBtn" class="close-btn">×</button></div><div class="queue-actions"><button id="clearQueueBtn" class="text-btn">Clear</button></div><div id="queueList" class="queue-list"></div></aside><div id="queueBackdrop" class="queue-backdrop" hidden></div>
   <script src="music-data.js"></script>
   <script src="script.js"></script>
-  <script src="scanner-fix.js"></script>
-  <script src="pro-ui.js"></script>
-  <script src="pro-suite.js"></script>
-  <script src="pro-player.js"></script>
-  <script src="dm-stabilizer.js"></script>
+  <script src="scanner-fix.js" defer></script>
+  <script src="pro-ui.js" defer></script>
+  <script src="pro-suite.js" defer></script>
+  <script src="pro-player.js" defer></script>
 </body>
 </html>

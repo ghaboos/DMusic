@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <title>DMusic</title>
+  <script>
+    (function () {
+      var path = window.location.pathname;
+      var repo = '/DMusic';
+      if (path.indexOf(repo + '/') === 0) {
+        var rest = path.slice(repo.length + 1);
+        if (rest && rest.indexOf('.') === -1) {
+          window.location.replace(repo + '/?route=' + encodeURIComponent(rest + window.location.search));
+        }
+      }
+    })();
+  </script>
+  <style>body{margin:0;background:#080808;color:#eee;font:16px system-ui;text-align:center;padding:20vh 20px}a{color:#e3b24d}</style>
+</head>
+<body>
+  <h1>DMusic</h1>
+  <p>Loading your music library…</p>
+  <p><a href="./">Open DMusic</a></p>
+</body>
+</html>

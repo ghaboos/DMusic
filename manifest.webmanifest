@@ -1,0 +1,19 @@
+{
+  "name": "DMusic — Your Music Library",
+  "short_name": "DMusic",
+  "description": "Personal music library and player.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/covers/fallback.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

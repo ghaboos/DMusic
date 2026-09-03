@@ -1,63 +1,58 @@
-# DMusic Stabilization QA
+# DMusic Final QA / Architecture Notes
 
-## 01 Audit / Cleanup
-- Superseded `pro-hotfix.js` removed from runtime and repository.
-- Superseded `cover-eq-fix.js` removed from runtime and repository.
-- Player stabilization is centralized in `dm-stabilizer.js`.
+## 01 — Runtime architecture
+- `script.js` remains the primary library/player runtime.
+- `scanner-fix.js`, `pro-ui.js`, `pro-suite.js`, and `pro-player.js` remain loaded because their functionality has not yet been safely consolidated into one file.
+- `dm-stabilizer.js`, `pro-hotfix.js`, and `cover-eq-fix.js` are not loaded and are no longer part of the active runtime.
+- `pro-ui.js` now debounces its DOM observer to avoid mutation/render storms.
 
-## 02 Player Core
-- Manual track selection marks the selected track as a fresh play and clears its saved resume position.
-- Previous / Next mark the next playback as a fresh play.
-- Pressing Play after a track has ended starts at `0:00`.
-- The core player remains the owner of `ended -> next`; the stabilization layer does not synthesize a second Next click.
-- Play / Pause state is mirrored to the mini and full player UI.
+## 02 — UI / visual system
+- `style.css` provides the responsive base layout and 3D/neon scene.
+- `pro-style.css` and `pro-suite.css` preserve the mature player/library feature styling.
+- `neon-theme.css` is loaded last as the compatibility layer that moves legacy Pro components onto the new cyan/violet/magenta visual identity.
+- The main page has a single valid HTML document and a dedicated DMusic 3D hero stage.
 
-## 03 CSS + UI
-- Stabilization overrides are scoped to DMusic player/library selectors.
-- Legacy EQ/hotfix selectors are no longer loaded from the removed hotfix runtime.
-- Existing base/pro UI styles remain intact to avoid destructive visual regressions.
+## 03 — Responsive behavior
+- Desktop, tablet and mobile layouts use dedicated breakpoints.
+- Mobile receives a compact player and bottom navigation.
+- Fixed player positioning is constrained to the viewport and avoids the historical right-shift issue.
+- Reduced-motion users receive a low-motion fallback.
 
-## 04 Cover + CD
-- Track cover precedence remains: custom track cover -> track cover -> custom folder cover -> folder cover -> fallback.
-- Mini player cover is rendered as a layered physical CD with hub, hole, grooves and highlight.
-- CD rotation uses one transform state, so pause freezes the current position instead of restarting an animation.
+## 04 — Library / scanner
+- Folder scanning and individual-file import remain supported.
+- Audio and image discovery, filename parsing, cover matching and IndexedDB persistence remain supported.
+- Library views include Library, Favorites, Recently Played, Most Played, Continue and Playlists.
 
-## 05 Real EQ / Visualizer
-- Web Audio `AnalyserNode` is attached lazily to the actual playback element on first Play.
-- EQ bars react to frequency data while playing and settle when paused.
-- Full-player EQ ring and mini-player EQ stay independent so the mini player cannot be stretched by the full-player ring.
+## 05 — Player
+- Mini-player controls remain wired to the existing player core.
+- Queue, shuffle, repeat, progress, volume and navigation remain available.
+- Full-player and cover-editor functionality remain supplied by the existing Pro runtime.
+- The removed stabilizer is intentionally not reintroduced; duplicate playback ownership was the source of several regression risks.
 
-## 06 Mobile
-- Mini CD scales down for small screens.
-- Full player uses a single-column mobile layout.
-- Existing swipe navigation remains enabled.
-- Full-player mode hides the fixed mini player to prevent overlap.
+## 06 — Covers / visualizer
+- Custom track/folder covers remain persisted through `dmusic-covers-v1`.
+- Cover fallback handling remains enabled.
+- Existing Pro visualizer/EQ/full-player components remain available through their current runtime files.
 
-## 07 Scanner / Library
-- Existing scanner, IndexedDB persistence, Add Folder and Add Files flows are preserved.
-- Existing content-visibility optimization remains enabled for large track lists.
+## 07 — PWA / deployment
+- GitHub Pages support remains configured through `.github/workflows/pages.yml`.
+- `.nojekyll`, `manifest.webmanifest` and the 404 page remain present.
+- Manifest metadata now matches the new DMusic neon identity.
 
-## 08 Persistence / Backup
-- Existing `dmusic-state-v8` state remains the source for favorites, queue, history, play counts and positions.
-- Existing Pro Suite backup/restore remains loaded.
-- Stabilizer only changes positions when a user explicitly starts a track/navigation action.
+## 08 — Validation boundary
+Source-level validation was performed against the repository structure and the active HTML/CSS/runtime references. GitHub connector access cannot physically operate a browser, select a user's local music folder, decode arbitrary local audio, or validate device-specific GPU rendering.
 
-## 09 Final QA
+The final browser smoke test is therefore required locally:
+1. Load the GitHub Pages build and hard-refresh.
+2. Confirm the hero, navigation, folder cards and track list render without console errors.
+3. Add a folder and individual audio files.
+4. Play, pause, resume, seek, change volume, shuffle, repeat and navigate tracks.
+5. Confirm an intentionally selected new track starts at `0:00` and ended playback advances once.
+6. Verify queue, favorites, playlists and Continue.
+7. Verify custom cover upload/reset and Full Player.
+8. Refresh and verify persisted state/library behavior.
+9. Test desktop, tablet and mobile widths.
+10. Test reduced-motion mode if applicable.
 
-### Browser smoke test
-1. Add a folder with MP3 files.
-2. Add individual MP3 files.
-3. Play a track from the list.
-4. Pause and resume; position must remain unchanged.
-5. Select a different track; it must begin at `0:00`.
-6. Press Previous / Next; the new track must begin at `0:00`.
-7. Let a track reach `ended`; the core player should advance once.
-8. Select the ended track again; it must begin at `0:00`.
-9. Refresh the page; library/state should restore according to the existing scanner persistence flow.
-10. Open Full Player; verify cover, EQ, progress and controls.
-11. Upload/reset a custom cover.
-12. Export and restore a backup.
-13. Repeat the above on a narrow mobile viewport.
-
-### Known validation boundary
-GitHub-side validation can inspect and update source, but it cannot physically click the browser, select local files, or listen to audio. The checklist above is therefore the required end-user smoke test after pulling the stabilized commit.
+## Current release
+The repository is intentionally kept on the stable multi-runtime architecture while the visual system is upgraded. No additional playback hotfix runtime has been introduced.

@@ -2,31 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#080808">
-  <meta name="description" content="DMusic — personal music library and player.">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DMusic">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05050a">
+  <meta name="description" content="DMusic — futuristic personal music library and player.">
+  <meta name="color-scheme" content="dark">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="assets/covers/fallback.svg" type="image/svg+xml">
-  <title>DMusic — Your Music Library</title>
+  <title>DMusic — Your Sound. Your World.</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="pro-style.css">
   <link rel="stylesheet" href="pro-suite.css">
 </head>
 <body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <div class="scene" aria-hidden="true">
+    <div class="scene-grid"></div>
+    <div class="orb orb-a"></div><div class="orb orb-b"></div><div class="orb orb-c"></div>
+    <div class="scanline"></div>
+  </div>
+
   <main class="app" id="top">
-    <header class="topbar"><a class="brand" href="#top">D<span>MUSIC</span></a><nav class="main-nav" aria-label="Library navigation"><button class="nav-btn active" data-view="library">Library</button><button class="nav-btn" data-view="favorites">Favorites</button><button class="nav-btn" data-view="recent">Recently Played</button><button class="nav-btn" data-view="most">Most Played</button><button class="nav-btn" data-view="continue">Continue</button><button class="nav-btn" data-view="playlists">Playlists</button></nav><div class="topbar-meta"><span class="status-dot"></span><span id="libraryStatus">YOUR MUSIC LIBRARY</span></div></header>
-    <section class="hero"><div class="hero-copy"><div class="eyebrow">PERSONAL AUDIO PLAYER</div><h1>YOUR SOUND.<br><em>YOUR WORLD.</em></h1><p>Every track, every mood, all in one place.</p><div class="scanner-bar"><button id="scanBtn" class="scan-btn" type="button">＋ ADD MUSIC FOLDER</button><button id="addFilesBtn" class="scan-btn secondary-scan-btn" type="button">＋ ADD MUSIC FILES</button><input id="musicFolderInput" type="file" webkitdirectory directory multiple hidden accept="audio/*,.mp3,.m4a,.flac,.wav,.ogg,.aac,.opus,.webm,.jpg,.jpeg,.png,.webp"><input id="musicFilesInput" type="file" multiple hidden accept="audio/*,.mp3,.m4a,.flac,.wav,.ogg,.aac,.opus,.webm"><span id="scanStatus" class="scan-status">Add a folder or individual music files to build your library.</span></div></div><div class="hero-badge" aria-hidden="true"><span>DM</span><small>PLAY</small></div></section>
-    <section class="content-section library-section"><div class="section-title"><div><span class="section-kicker">LIBRARY</span><h2 id="pageTitle">Folders</h2></div><div class="library-actions"><button id="allTracksBtn" class="text-btn">All tracks</button><span id="folderCount" class="count">0</span></div></div><div id="library" class="library"></div></section>
-    <section class="content-section tracks-section"><div class="section-title"><div><span class="section-kicker">COLLECTION</span><h2 id="tracksHeading">Tracks</h2></div><div class="track-tools"><select id="sortSelect"><option value="name">Name</option><option value="artist">Artist</option><option value="album">Album</option><option value="year">Year</option><option value="recent">Recently played</option><option value="plays">Most played</option></select><select id="filterSelect"><option value="all">All</option><option value="favorites">Favorites</option><option value="played">Played</option><option value="unplayed">Unplayed</option><option value="year">With year</option></select><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search tracks..." autocomplete="off"></label></div></div><div id="statsBar" class="stats-bar"></div><div id="tracks" class="tracks"></div><div id="emptyState" class="empty-state" hidden>No tracks found.</div></section>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="DMusic home"><i>Ｄ</i><span>MUSIC</span></a>
+      <nav class="main-nav" aria-label="Library navigation">
+        <button class="nav-btn active" data-view="library">Library</button>
+        <button class="nav-btn" data-view="favorites">Favorites</button>
+        <button class="nav-btn" data-view="recent">Recently Played</button>
+        <button class="nav-btn" data-view="most">Most Played</button>
+        <button class="nav-btn" data-view="continue">Continue</button>
+        <button class="nav-btn" data-view="playlists">Playlists</button>
+      </nav>
+      <div class="topbar-meta"><span class="status-dot"></span><span id="libraryStatus">DMUSIC // ONLINE</span></div>
+    </header>
+
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <div class="eyebrow"><span>DMUSIC OS</span> / PERSONAL AUDIO SYSTEM</div>
+        <h1 id="heroTitle">YOUR SOUND.<br><em>YOUR WORLD.</em></h1>
+        <p>A local-first music universe with zero noise between you and the music.</p>
+        <div class="scanner-bar">
+          <button id="scanBtn" class="scan-btn" type="button">＋ ADD MUSIC FOLDER</button>
+          <button id="addFilesBtn" class="scan-btn secondary-scan-btn" type="button">＋ ADD MUSIC FILES</button>
+          <input id="musicFolderInput" type="file" webkitdirectory directory multiple hidden accept="audio/*,.mp3,.m4a,.flac,.wav,.ogg,.aac,.opus,.webm,.jpg,.jpeg,.png,.webp">
+          <input id="musicFilesInput" type="file" multiple hidden accept="audio/*,.mp3,.m4a,.flac,.wav,.ogg,.aac,.opus,.webm">
+          <span id="scanStatus" class="scan-status">Drop your library into the system.</span>
+        </div>
+      </div>
+
+      <div class="hero-stage" aria-hidden="true">
+        <div class="hero-ring ring-one"></div><div class="hero-ring ring-two"></div>
+        <div class="hero-core"><strong>DM</strong><span>SONIC<br>CORE</span></div>
+        <div class="hero-label label-one">LOCAL / 01</div><div class="hero-label label-two">AUDIO / LIVE</div>
+      </div>
+    </section>
+
+    <section class="content-section library-section">
+      <div class="section-title">
+        <div><span class="section-kicker">01 / LIBRARY</span><h2 id="pageTitle">Folders</h2></div>
+        <div class="library-actions"><button id="allTracksBtn" class="text-btn">ALL TRACKS</button><span id="folderCount" class="count">0</span></div>
+      </div>
+      <div id="library" class="library"></div>
+    </section>
+
+    <section class="content-section tracks-section">
+      <div class="section-title">
+        <div><span class="section-kicker">02 / COLLECTION</span><h2 id="tracksHeading">Tracks</h2></div>
+        <div class="track-tools">
+          <select id="sortSelect" aria-label="Sort tracks"><option value="name">Name</option><option value="artist">Artist</option><option value="album">Album</option><option value="year">Year</option><option value="recent">Recently played</option><option value="plays">Most played</option></select>
+          <select id="filterSelect" aria-label="Filter tracks"><option value="all">All</option><option value="favorites">Favorites</option><option value="played">Played</option><option value="unplayed">Unplayed</option><option value="year">With year</option></select>
+          <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search tracks..." autocomplete="off"></label>
+        </div>
+      </div>
+      <div id="statsBar" class="stats-bar"></div>
+      <div id="tracks" class="tracks"></div>
+      <div id="emptyState" class="empty-state" hidden>No tracks found.</div>
+    </section>
   </main>
-  <div id="playlistModal" class="modal" hidden><div class="modal-card"><button id="closePlaylistModal" class="close-btn">×</button><span class="section-kicker">NEW PLAYLIST</span><h2>Create playlist</h2><input id="playlistName" class="modal-input" maxlength="50" placeholder="Playlist name..."><button id="createPlaylistBtn" class="scan-btn">CREATE</button></div></div>
-  <aside class="player" aria-label="Music player"><div class="player-main"><div class="now-art-wrap"><img id="nowCover" src="assets/covers/fallback.svg" alt=""><span id="playingIndicator" class="playing-indicator" hidden></span></div><div class="now"><b id="nowTitle">Nothing playing</b><small id="nowArtist">Choose a track</small></div><div class="player-controls"><button id="shuffleBtn" class="control-btn mode-btn" type="button"></button><button id="prevBtn" class="control-btn" type="button"></button><button id="playBtn" class="play-btn" type="button">▶</button><button id="nextBtn" class="control-btn" type="button"></button><button id="repeatBtn" class="control-btn mode-btn" type="button"></button><button id="queueBtn" class="control-btn mode-btn" type="button"></button></div><div class="time-progress"><span id="currentTime">0:00</span><input id="progress" type="range" min="0" max="100" value="0" step="0.1"><span id="duration">0:00</span></div><div class="volume-wrap"><span>♪</span><input id="volume" class="volume" type="range" min="0" max="1" step="0.01" value="1"></div></div></aside>
-  <aside id="queuePanel" class="queue-panel" aria-hidden="true"><div class="queue-head"><div><span class="section-kicker">UP NEXT</span><h2>Queue</h2></div><button id="closeQueueBtn" class="close-btn">×</button></div><div class="queue-actions"><button id="clearQueueBtn" class="text-btn">Clear</button></div><div id="queueList" class="queue-list"></div></aside><div id="queueBackdrop" class="queue-backdrop" hidden></div>
+
+  <div id="playlistModal" class="modal" hidden>
+    <div class="modal-card"><button id="closePlaylistModal" class="close-btn" type="button">×</button><span class="section-kicker">NEW PLAYLIST</span><h2>Create playlist</h2><input id="playlistName" class="modal-input" maxlength="50" placeholder="Playlist name..." autocomplete="off"><button id="createPlaylistBtn" class="scan-btn" type="button">CREATE PLAYLIST</button></div>
+  </div>
+
+  <aside class="player" aria-label="Music player">
+    <div class="player-glow"></div>
+    <div class="player-main">
+      <div class="now-art-wrap"><img id="nowCover" src="assets/covers/fallback.svg" alt="Now playing artwork"><span id="playingIndicator" class="playing-indicator" hidden></span></div>
+      <div class="now"><b id="nowTitle">Nothing playing</b><small id="nowArtist">Choose a track</small></div>
+      <div class="player-controls">
+        <button id="shuffleBtn" class="control-btn mode-btn" type="button" aria-label="Shuffle"></button>
+        <button id="prevBtn" class="control-btn" type="button" aria-label="Previous"></button>
+        <button id="playBtn" class="play-btn" type="button" aria-label="Play">▶</button>
+        <button id="nextBtn" class="control-btn" type="button" aria-label="Next"></button>
+        <button id="repeatBtn" class="control-btn mode-btn" type="button" aria-label="Repeat"></button>
+        <button id="queueBtn" class="control-btn mode-btn" type="button" aria-label="Queue"></button>
+      </div>
+      <div class="time-progress"><span id="currentTime">0:00</span><input id="progress" type="range" min="0" max="100" value="0" step="0.1" aria-label="Playback position"><span id="duration">0:00</span></div>
+      <div class="volume-wrap"><span>♪</span><input id="volume" class="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume"></div>
+    </div>
+  </aside>
+
+  <aside id="queuePanel" class="queue-panel" aria-hidden="true"><div class="queue-head"><div><span class="section-kicker">03 / UP NEXT</span><h2>Queue</h2></div><button id="closeQueueBtn" class="close-btn" type="button">×</button></div><div class="queue-actions"><button id="clearQueueBtn" class="text-btn" type="button">CLEAR QUEUE</button></div><div id="queueList" class="queue-list"></div></aside>
+  <div id="queueBackdrop" class="queue-backdrop" hidden></div>
+
   <script src="music-data.js"></script>
   <script src="script.js"></script>
   <script src="scanner-fix.js"></script>
